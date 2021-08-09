@@ -1,23 +1,21 @@
 import sys
 import os
+import rds_auth
 import pymysql
 import logging
 import time
 
-host_name = "shop-book.ciclmc7wjq3o.ap-northeast-2.rds.amazonaws.com"
-port = 3306
-user_name = "shopmaster"
-password = "springbook11"
-database_name = "shop_book"
+sys.path.insert(0,'./Users/dmsru/Desktop/shopping/book/rds_auth.py')
+login = rds_auth.Info
 
-def connect_RDS(host_name,port,user_name,password,database_name) :
+def connect_RDS() :
     try :
         conn = pymysql.connect(
-        host=host_name,
-        port=port,
-        user=user_name, 
-        passwd=password,
-        db=database_name,
+        host=login['host_name'],
+        port=login['port'],
+        user=login['user_name'], 
+        passwd=login['password'],
+        db=login['database_name'],
         charset="utf8")
         cursor = conn.cursor()
     except :
@@ -27,9 +25,9 @@ def connect_RDS(host_name,port,user_name,password,database_name) :
     return conn, cursor
 
 def main() :
-    conn, cursor = connect_RDS(host_name,port,user_name,password,database_name)
+    conn, cursor = connect_RDS()
 
-    query = "INSERT INTO Book (book_id, book_nm, writer, thumbnail_url, book_info_url, price) VALUES (2,'a','b','c','d',3)"
+    query = "INSERT INTO Book (book_id, book_nm, writer, thumbnail_url, book_info_url, price) VALUES (4,'a','b','c','d',5)"
     cursor.execute(query)
     conn.commit()
 
