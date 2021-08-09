@@ -1,13 +1,16 @@
 import sys
 import os
 import rds_auth
+import crawling
 import pymysql
 import logging
 import time
 
-sys.path.insert(0,'./Users/dmsru/Desktop/shopping/book/rds_auth.py')
+# RDS 연결
+sys.path.insert(0,'./rds_auth.py')
 login = rds_auth.Info
 
+# RDS 연결
 def connect_RDS() :
     try :
         conn = pymysql.connect(
@@ -24,14 +27,17 @@ def connect_RDS() :
 
     return conn, cursor
 
-def main() :
-    conn, cursor = connect_RDS()
 
-    query = "INSERT INTO Book (book_id, book_nm, writer, thumbnail_url, book_info_url, price) VALUES (4,'a','b','c','d',5)"
-    cursor.execute(query)
+def main() :
+
+    conn, cursor = connect_RDS()       
+
+    query = "INSERT INTO Book (book_nm, writer, thumbnail_url, book_info_url, price) VALUES (%s, %s, %s, %s, %s)"
+    val = crawling.book_data()
+
+    cursor.executemany(query,val)
     conn.commit()
 
 if __name__ == "__main__" :
     main()
-
 
