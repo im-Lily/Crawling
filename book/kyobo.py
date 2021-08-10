@@ -20,15 +20,30 @@ pages = paging.select('ul > li > a')
 for page in pages:
     page_list.append(page.get('href'))
 
+# 페이지 이동
+
+oneBtn = driver.find_element_by_xpath('//*[@id="main_contents"]/div[5]/div[1]/a').click()
+for i in range(10) :
+    try: 
+        nextBtn = driver.find_element_by_xpath('//*[@id="main_contents"]/div[4]/div[1]/a[2]').click()
+    except: 
+        print("데이터 수집 완료") 
+        break;
 
 # 2. 상세 페이지 리스트
+
 book_page_urls = []
 for cover in bsObject.find_all('div', {'class':'detail'}):
     link = cover.select('a')[0].get('href')
     book_page_urls.append(link)
+    
+print("제발---->",book_page_urls)
+
+print("개수---->",len(book_page_urls))
 
 
 # 3. 데이터 가져오기
+
 all_book = []
 def book_data():
     for index, book_page_url in enumerate(book_page_urls):
@@ -61,6 +76,7 @@ def book_data():
 
         book_info = [book for book in zip(title_info,author_info,publisher_info,price_info,isbn_info,image_info,description_info,section_info)]
         all_book.append(book_info[0])
+
 
     driver.close()
 
