@@ -1,10 +1,9 @@
 import sys
 import os
 import rds_auth
-import crawling
+import kyobo
 import pymysql
 import logging
-import time
 
 # RDS 연결
 sys.path.insert(0,'./rds_auth.py')
@@ -32,12 +31,15 @@ def main() :
 
     conn, cursor = connect_RDS()       
 
-    query = "INSERT INTO Book (book_nm, writer, thumbnail_url, book_info_url, price) VALUES (%s, %s, %s, %s, %s)"
-    val = crawling.book_data()
+    query = "INSERT INTO Book (book_nm,writer,publisher,price,isbn,thumbnail_url,description,section) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+    val = kyobo.book_data()
+
+    # query = "INSERT INTO Book (book_nm,writer,publisher,price,isbn,thumbnail_url) VALUES (%s,%s,%s,%s,%s,%s)"
+    # val = kyobo.book_data()
 
     cursor.executemany(query,val)
     conn.commit()
 
+
 if __name__ == "__main__" :
     main()
-
