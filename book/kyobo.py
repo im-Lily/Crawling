@@ -29,11 +29,10 @@ for cover in bsObject.find_all('div', {'class':'detail'}):
 
 
 # 3. 데이터 가져오기
+all_book = []
 def book_data():
     for index, book_page_url in enumerate(book_page_urls):
         
-        all_book = []
-
         driver.get(book_page_url)
         bsObject = BeautifulSoup(driver.page_source, 'html.parser')
         
@@ -49,9 +48,7 @@ def book_data():
         section = bsObject.find('div',{'class':'box_detail_article'}).text
         section = section.replace('\t','').replace('\n','')
 
-
         title_info = [];author_info = [];publisher_info = [];price_info = [];isbn_info = [];image_info = [];description_info = [];section_info = []
-        
 
         title_info.append(title)
         author_info.append(author)
@@ -64,10 +61,14 @@ def book_data():
 
         book_info = [book for book in zip(title_info,author_info,publisher_info,price_info,isbn_info,image_info,description_info,section_info)]
         all_book.append(book_info[0])
-        # print("성공?---->",all_book)
 
     driver.close()
 
     return all_book
+        
+
+    
+
+
         
 
