@@ -19,7 +19,6 @@ driver.implicitly_wait(3)
 driver.get(url)
 bsObject = BeautifulSoup(driver.page_source, 'html.parser')
 
-
 # 카테고리 이동(2,29)
 def cateBtn() :
     for i in range(2,4) :
@@ -36,53 +35,59 @@ def pageBtn() :
     return nextBtn
 
 
+# 소설 카테고리부터 시작
+driver.find_element_by_xpath('//*[@id="memo1"]/div[1]/ul/li[2]').click()
+time.sleep(3)
+
 # 상세 페이지(0,25)
 book_page_urls = []
-for index in range(0, 3):
-    dl_data = bsObject.find('dt', {'id':"book_title_"+str(index)})
-    link = dl_data.select('a')[0].get('href')
-    book_page_urls.append(link)
-print('url---->',book_page_urls)
+for i in range(0, 5):
+    dl_data = driver.find_element_by_xpath(f'//*[@id="book_title_{i}"]/a').get_attribute("href")
+    time.sleep(3)
+    book_page_urls.append(dl_data)
+# print('url---->',book_page_urls)
 
 
 # 메타 정보와 본문에서 필요한 정보를 추출합니다.
-# def book_data():
-all_book = []
-for index, book_page_url in enumerate(book_page_urls):
 
-    driver.get(book_page_url)
-    bsObject = BeautifulSoup(driver.page_source, 'html.parser')
+def book_data():
+    all_book = []
+    for index, book_page_url in enumerate(book_page_urls):
 
-    title = bsObject.find('meta', {'property':'og:title'}).get('content')
-    author = bsObject.find('dt', text='저자').find_next_siblings('dd')[0].text.strip()
-    publisher = bsObject.find('dt', text='출판사').find_next_sibling('dd').text
-    dd = bsObject.find('dt', text='가격').find_next_siblings('dd')[0]
-    price = dd.select('div.lowest span.price')[0].text
-    # isbn_tag = '#isbnBtn'
-    # isbn = bsObject.select(isbn_tag)
-    # print("isbn 제발!!", isbn)
-    
-    image = bsObject.find('meta', {'property':'og:image'}).get('content')
-    section = bsObject.find('h3', text='목차').find_next_sibling('div').text
-    section = re.sub('\n\n','',section)
-    description = bsObject.find('meta', {'property':'og:description'}).get('content')
-    description = description.replace('\n',"")
-    
-    title_info = [];author_info = [];publisher_info = [];price_info = [];image_info = [];section_info = [];description_info = [];
+        driver.get(book_page_url)
+        bsObject = BeautifulSoup(driver.page_source, 'html.parser')
+        
+        title = bsObject.find('meta', {'property':'og:title'}).get('content')
+        author = bsObject.find('dt', text='저자').find_next_siblings('dd')[0].text.strip()
+        publisher = bsObject.find('dt', text='출판사').find_next_sibling('dd').text
+        dd = bsObject.find('dt', text='가격').find_next_siblings('dd')[0]
+        price = dd.select('div.lowest span.price')[0].text
+    #     # isbn_tag = '#isbnBtn'
+    #     # isbn = bsObject.select(isbn_tag)
+    #     # print("isbn 제발!!", isbn)
+        
+        image = bsObject.find('meta', {'property':'og:image'}).get('content')
+        section = bsObject.find('h3', text='목차').find_next_sibling('div').text
+        section = section.replace('\n','')
+        description = bsObject.find('meta', {'property':'og:description'}).get('content')
+        description = description.replace('\n','')
+        
+        title_info = [];author_info = [];publisher_info = [];price_info = [];image_info = [];section_info = [];description_info = [];
 
-    title_info.append(title)
-    author_info.append(author)
-    publisher_info.append(publisher)
-    price_info.append(price)
-    image_info.append(image)
-    section_info.append(section)
-    description_info.append(description)
-     
-    book_info = [book for book in zip(title_info,author_info,publisher_info,price_info,image_info,section_info,description_info)]
-    all_book.append(book_info[0])
+        title_info.append(title)
+        author_info.append(author)
+        publisher_info.append(publisher)
+        price_info.append(price)
+        image_info.append(image)
+        section_info.append(section)
+        description_info.append(description)
+        
+        book_info = [book for book in zip(title_info,author_info,publisher_info,price_info,image_info,section_info,description_info)]
+        all_book.append(book_info[0])
+        
+    return all_book
 
-    print('all--->',all_book)    
-
+# print('all--->',all_book)    
 
 
 
