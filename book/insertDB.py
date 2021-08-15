@@ -31,7 +31,7 @@ def main() :
 
     conn, cursor = connect_RDS()       
 
-    query = "INSERT INTO Book (book_nm,writer,publisher,price,thumbnail_url,section,description) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+    query = "INSERT INTO book (book_nm,writer,publisher,price,isbn,thumbnail_url,section,description) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
     val = crawling.book_data()
 
     cursor.executemany(query,val)
