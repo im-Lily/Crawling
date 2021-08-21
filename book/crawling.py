@@ -20,11 +20,11 @@ driver.get(url)
 bsObject = BeautifulSoup(driver.page_source, 'html.parser')
 
 # 소설 카테고리부터 시작, 1페이지
-# driver.find_element_by_xpath('//*[@id="memo1"]/div[1]/ul/li[2]').click()
-# time.sleep(3)
+driver.find_element_by_xpath('//*[@id="memo1"]/div[1]/ul/li[2]').click()
+time.sleep(3)
 
-# 국어와 외국어
-driver.find_element_by_xpath('//*[@id="memo1"]/div[1]/ul/li[10]').click()
+# 펼치기
+driver.find_element_by_xpath('//*[@id="memo1"]/div[2]').click()
 time.sleep(3)
 
 
@@ -33,8 +33,10 @@ book_page_urls = []
 for i in range(1,7) :
     if i != 6:
         nextBtn = driver.find_element_by_xpath(f'//*[@id="section_bestseller"]/div[4]/a[{i}]').click()
-    for j in range(0, 25):
+    for j in range(0, 25): 
         dl_data = driver.find_element_by_xpath(f'//*[@id="book_title_{j}"]/a').get_attribute("href")
+        if dl_data == None :
+            break
         time.sleep(3)
         book_page_urls.append(dl_data)
     time.sleep(3)   
@@ -53,7 +55,7 @@ def book_data():
         title = bsObject.find('meta', {'property':'og:title'}).get('content')
         author = bsObject.find('dt', text='저자').find_next_siblings('dd')[0].text.strip()
         publisher = bsObject.find('dt', text='출판사').find_next_sibling('dd').text
-
+        
         try :
             price = bsObject.select_one('div.lowest > span.price').text
         except :
@@ -100,8 +102,3 @@ def book_data():
         all_book.append(book_info[0])
                     
     return all_book
-
-
-
-
-
