@@ -3,7 +3,7 @@ import sys
 
 import pymysql
 
-import imgUrl
+import googleImgUrl
 
 
 # DB 연결
@@ -28,7 +28,7 @@ def main():
     conn, cursor = connect_db()
 
     query = "INSERT INTO img (IMG_URL) VALUES (%s)"
-    val = imgUrl.img_url()
+    val = googleImgUrl.img_url()
 
     cursor.executemany(query, val)
     conn.commit()
