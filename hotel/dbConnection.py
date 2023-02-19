@@ -3,8 +3,6 @@ import sys
 
 import pymysql
 
-import googleImgUrl
-
 
 # DB 연결
 def connect_db():
@@ -24,15 +22,32 @@ def connect_db():
     return conn, cursor
 
 
-def main():
+# 메인 이미지 url DB 추가
+def save_main_data(imgUrlDict):
     conn, cursor = connect_db()
 
-    query = "INSERT INTO img (IMG_URL) VALUES (%s)"
-    val = googleImgUrl.img_url()
+    print(">", imgUrlDict)
 
-    cursor.executemany(query, val)
+    query = f"INSERT INTO main_img (ID, MAIN_IMG_URL) VALUES (\'{imgUrlDict['mainImageId']}\', \'{imgUrlDict['mainImageUrl']}\')"
+
+    print("query1 : ", query)
+    cursor.execute(query)
+
+    cursor.execute(query)
     conn.commit()
     conn.close()
 
-if __name__ == "__main__":
-    main()
+
+# 상세 이미지 url DB 추가
+def save_detail_data(imgUrlDict):
+    conn, cursor = connect_db()
+
+    query = f"INSERT INTO detail_img (DETAIL_IMG_URL, MAIN_IMG_ID) VALUES (\'{imgUrlDict['detailImageUrl']}\', \'{imgUrlDict['mainImageId']}\')"
+    print("query2: ", query)
+
+    cursor.execute(query)
+    conn.commit()
+    conn.close()
+
+# if __name__ == "__main__":
+#     save_data()

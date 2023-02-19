@@ -6,6 +6,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
+from dbConnection import save_main_data, save_detail_data
+
 # 브라우저 꺼짐 방지
 chrome_options = Options()
 chrome_options.add_experimental_option("detach", True)
@@ -46,6 +48,7 @@ driver.implicitly_wait(5)
 # 메인, 상세(객실) 이미지 url 가져오기
 mainImgLinks = []
 detailImageLinks = []
+imgUrlDict = {}
 mainImages = driver.find_elements(By.CSS_SELECTOR, ".HeroImage")
 try:
     for mainImage in mainImages:
@@ -53,12 +56,19 @@ try:
         time.sleep(2)
         # 메인 이미지 url
         mainImageUrl = mainImage.get_attribute("src")
+        mainImageId = mainImage.get_attribute("data-element-index")
         print("mainImageUrl: ", mainImageUrl)
+        print("mainImageId: ", mainImageId)
+        imgUrlDict['mainImageUrl'] = mainImageUrl
+        imgUrlDict['mainImageId'] = int(mainImageId) + 1
+
         if (mainImageUrl != None):
             mainImgLinks.append(mainImageUrl)
 
-        print("================================================================================================================")
-        print()
+        print(
+            "================================================================================================================")
+
+        save_main_data(imgUrlDict)
 
         # 객실 클릭
         driver.find_element(By.XPATH,
@@ -68,15 +78,25 @@ try:
                                             "/html/body/div[17]/div/div[2]/div/div/div[2]/div[2]/div[2]/div")
         # 객실 이미지 url 5개 가져오기
         for i in range(2, 7):
-            driver.find_elements(By.CSS_SELECTOR, f".GalleryRefresh__ThumbnailScroller > div > div:nth-child({i})")
-            detailImageUrl = driver.find_element(By.XPATH,
-                                                 f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{i}]/img").get_attribute(
-                "src")
-            # 다음 버튼 클릭
-            driver.find_element(By.XPATH, "/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div").click()
+            try:
+                driver.find_elements(By.CSS_SELECTOR,
+                                     f".GalleryRefresh__ThumbnailScroller > div > div:nth-child({i})")
+                detailImageUrl = driver.find_element(By.XPATH,
+                                                     f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{i}]/img").get_attribute(
+                    "src")
+            except:
+                pass
+
             print("detailImageUrl: ", detailImageUrl)
+            imgUrlDict['detailImageUrl'] = detailImageUrl
+
+            # 다음 버튼 클릭
+            driver.find_element(By.XPATH,
+                                "/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div").click()
             if (detailImageUrl != None):
                 detailImageLinks.append(detailImageUrl)
+
+            save_detail_data(imgUrlDict)
 
         # 상세 이미지 창 닫기
         driver.find_element(By.XPATH, "/html/body/div[17]/div/div[2]/div/div/div[1]/button/div/div/div").click()
