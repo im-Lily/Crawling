@@ -32,7 +32,7 @@ def main():
 
     cursor.executemany(query, val)
     conn.commit()
-
+    conn.close()
 
 if __name__ == "__main__":
     main()

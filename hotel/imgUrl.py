@@ -30,10 +30,9 @@ search.send_keys("호텔")
 search.send_keys(Keys.ENTER)
 
 # 스크롤 끝까지 내리기
-SCROLL_PAUSE_TIME = 1
+SCROLL_PAUSE_TIME = 2
 
 last_height = driver.execute_script("return document.body.scrollHeight")
-
 while True:
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(SCROLL_PAUSE_TIME)
@@ -43,8 +42,7 @@ while True:
         try:
             driver.find_element(By.CSS_SELECTOR, ".mye4qd").click()
         except:
-            if (driver.find_element(By.CSS_SELECTOR, ".OuJzKb.Yu2Dnd").text == "더 이상 표시할 콘텐츠가 없습니다."):
-                break
+            break
     last_height = new_height
 
 
@@ -54,15 +52,19 @@ def img_url():
     images = driver.find_elements(By.CSS_SELECTOR, ".rg_i.Q4LuWd")
     try:
         for image in images:
-            image.click()
+            driver.execute_script("arguments[0].click();", image)
             time.sleep(2)
-            imgUrl = driver.find_element(By.CSS_SELECTOR, ".n3VNCb").get_attribute("src")
+            imgUrl = driver.find_element(By.XPATH,
+                                         '//*[@id="Sva75c"]/div[2]/div/div[2]/div[2]/div[2]/c-wiz/div/div[1]/div[2]/div[2]/div/a/img').get_attribute(
+                "src")
             if (imgUrl != None):
                 links.append(imgUrl)
-    except:
+    except Exception as e:
+        print(e)
         pass
 
     print("찾은 이미지 개수 : ", len(links))
+
     driver.close()
 
     return links
