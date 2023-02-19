@@ -43,7 +43,7 @@ driver.implicitly_wait(5)
 #             break
 #     last_height = new_height
 
-# 메인, 상세 이미지 url 가져오기
+# 메인, 상세(객실) 이미지 url 가져오기
 mainImgLinks = []
 detailImageLinks = []
 mainImages = driver.find_elements(By.CSS_SELECTOR, ".HeroImage")
@@ -51,22 +51,38 @@ try:
     for mainImage in mainImages:
         mainImage.click()
         time.sleep(2)
+        # 메인 이미지 url
         mainImageUrl = mainImage.get_attribute("src")
-        print(mainImageUrl)
+        print("mainImageUrl: ", mainImageUrl)
         if (mainImageUrl != None):
             mainImgLinks.append(mainImageUrl)
+
+        print("================================================================================================================")
+        print()
 
         # 객실 클릭
         driver.find_element(By.XPATH,
                             "/html/body/div[17]/div/div[2]/div/div/div[2]/div[2]/div[1]/div/button[2]/div/div/div/div/p").click()
-        # TODO 객실 이미지 개수만큼 반복해서 객실 이미지 5개 가져오기
-        detailImages = driver.find_elements(By.CSS_SELECTOR, ".GalleryRefresh__ThumbnailScroller")
-        for detailImage in detailImages:
-            driver.execute_script("arguments[0].click();", detailImage)
-            detailImageUrl = driver.find_element(By.XPATH, "/html/body/div[17]/div/div[2]/div/div/div[2]/div[2]/div[2]/div/div[1]/div/img").get_attribute("src")
-            print("> ", detailImageUrl)
+        # 객실 이미지
+        detailImages = driver.find_elements(By.XPATH,
+                                            "/html/body/div[17]/div/div[2]/div/div/div[2]/div[2]/div[2]/div")
+        # 객실 이미지 url 5개 가져오기
+        for i in range(2, 7):
+            driver.find_elements(By.CSS_SELECTOR, f".GalleryRefresh__ThumbnailScroller > div > div:nth-child({i})")
+            detailImageUrl = driver.find_element(By.XPATH,
+                                                 f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{i}]/img").get_attribute(
+                "src")
+            # 다음 버튼 클릭
+            driver.find_element(By.XPATH, "/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div").click()
+            print("detailImageUrl: ", detailImageUrl)
+            if (detailImageUrl != None):
+                detailImageLinks.append(detailImageUrl)
+
+        # 상세 이미지 창 닫기
+        driver.find_element(By.XPATH, "/html/body/div[17]/div/div[2]/div/div/div[1]/button/div/div/div").click()
 
     print("찾은 메인 이미지 개수 : ", len(mainImgLinks))
+    print("찾은 상세 이미지 개수 : ", len(detailImageLinks))
 
 except Exception as e:
     print(e)
