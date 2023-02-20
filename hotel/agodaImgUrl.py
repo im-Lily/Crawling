@@ -46,8 +46,8 @@ driver.implicitly_wait(5)
 #     last_height = new_height
 
 # 메인, 상세(객실) 이미지 url 가져오기
-mainImgLinks = []
-detailImageLinks = []
+# mainImgLinks = []
+# detailImageLinks = []
 imgUrlDict = {}
 mainImages = driver.find_elements(By.CSS_SELECTOR, ".HeroImage")
 try:
@@ -62,8 +62,8 @@ try:
         imgUrlDict['mainImageUrl'] = mainImageUrl
         imgUrlDict['mainImageId'] = int(mainImageId) + 1
 
-        if (mainImageUrl != None):
-            mainImgLinks.append(mainImageUrl)
+        # if (mainImageUrl != None):
+        #     mainImgLinks.append(mainImageUrl)
 
         print(
             "================================================================================================================")
@@ -84,26 +84,29 @@ try:
                 detailImageUrl = driver.find_element(By.XPATH,
                                                      f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{i}]/img").get_attribute(
                     "src")
-            except:
+                # 다음 버튼 클릭
+                driver.find_element(By.XPATH,
+                                    "/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div").click()
+            except Exception as e1:
+                print("e1: ", e1)
                 pass
 
             print("detailImageUrl: ", detailImageUrl)
             imgUrlDict['detailImageUrl'] = detailImageUrl
 
-            # 다음 버튼 클릭
-            driver.find_element(By.XPATH,
-                                "/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div").click()
-            if (detailImageUrl != None):
-                detailImageLinks.append(detailImageUrl)
+            # if (detailImageUrl != None):
+            #     detailImageLinks.append(detailImageUrl)
 
             save_detail_data(imgUrlDict)
 
         # 상세 이미지 창 닫기
         driver.find_element(By.XPATH, "/html/body/div[17]/div/div[2]/div/div/div[1]/button/div/div/div").click()
 
-    print("찾은 메인 이미지 개수 : ", len(mainImgLinks))
-    print("찾은 상세 이미지 개수 : ", len(detailImageLinks))
+    # print("찾은 메인 이미지 개수 : ", len(mainImgLinks))
+    # print("찾은 상세 이미지 개수 : ", len(detailImageLinks))
+    print("찾은 메인 이미지 개수 : ", len(imgUrlDict['mainImageUrl']))
+    print("찾은 상세 이미지 개수 : ", len(imgUrlDict['detailImageUrl']))
 
-except Exception as e:
-    print(e)
+except Exception as e2:
+    print("e2: ", e2)
     pass

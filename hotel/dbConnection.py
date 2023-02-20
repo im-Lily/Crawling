@@ -28,7 +28,7 @@ def save_main_data(imgUrlDict):
 
     print(">", imgUrlDict)
 
-    query = f"INSERT INTO main_img (ID, MAIN_IMG_URL) VALUES (\'{imgUrlDict['mainImageId']}\', \'{imgUrlDict['mainImageUrl']}\')"
+    query = f"INSERT INTO main_img (MAIN_IMG_URL, MAIN_IMG_ID) VALUES (\'{imgUrlDict['mainImageUrl']}\', \'{imgUrlDict['mainImageId']}\')"
 
     print("query1 : ", query)
     cursor.execute(query)
