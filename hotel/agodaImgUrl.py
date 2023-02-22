@@ -1,3 +1,4 @@
+import re
 import time
 
 from selenium import webdriver
@@ -30,7 +31,7 @@ driver.get(
 driver.implicitly_wait(5)
 
 # 스크롤 끝까지 내리기
-# SCROLL_PAUSE_TIME = 1
+# SCROLL_PAUSE_TIME = 3
 #
 # last_height = driver.execute_script("return document.body.scrollHeight")
 # while True:
@@ -41,13 +42,12 @@ driver.implicitly_wait(5)
 #     if new_height == last_height:
 #         try:
 #             driver.find_element(By.CSS_SELECTOR, "#paginationNext").click()
+#             time.sleep(SCROLL_PAUSE_TIME)
 #         except:
 #             break
 #     last_height = new_height
 
 # 메인, 상세(객실) 이미지 url 가져오기
-# mainImgLinks = []
-# detailImageLinks = []
 imgUrlDict = {}
 mainImages = driver.find_elements(By.CSS_SELECTOR, ".HeroImage")
 try:
@@ -62,47 +62,54 @@ try:
         imgUrlDict['mainImageUrl'] = mainImageUrl
         imgUrlDict['mainImageId'] = int(mainImageId) + 1
 
-        # if (mainImageUrl != None):
-        #     mainImgLinks.append(mainImageUrl)
-
         print(
             "================================================================================================================")
 
         save_main_data(imgUrlDict)
 
-        # 객실 클릭
+        # 객실 클릭 TODO
+        # 객실 사진수 가져오기
+        elements = driver.find_elements(By.CLASS_NAME,
+                                        "Buttonstyled__ButtonStyled-sc-5gjk6l-0.izeZQM")
+        elements[2]. click()
+
         driver.find_element(By.XPATH,
                             "/html/body/div[17]/div/div[2]/div/div/div[2]/div[2]/div[1]/div/button[2]/div/div/div/div/p").click()
         # 객실 이미지
         detailImages = driver.find_elements(By.XPATH,
                                             "/html/body/div[17]/div/div[2]/div/div/div[2]/div[2]/div[2]/div")
+
+        # 객실 사진수 가져오기
+        # elements = driver.find_elements(By.CLASS_NAME,
+        #                                 "Buttonstyled__ButtonStyled-sc-5gjk6l-0.izeZQM")
+        roomText = elements[2].text
+
+        # 총 객실 사진수
+        roomLen = int(re.sub(r'[^0-9]', '', roomText))
+
         # 객실 이미지 url 5개 가져오기
-        for i in range(2, 7):
-            try:
-                driver.find_elements(By.CSS_SELECTOR,
-                                     f".GalleryRefresh__ThumbnailScroller > div > div:nth-child({i})")
+        for i in range(1, 6):
+            driver.find_elements(By.CSS_SELECTOR,
+                                 f".GalleryRefresh__ThumbnailScroller > div > div:nth-child({i})")  # 이게 뭐지
+            detailImageUrl = driver.find_element(By.XPATH,
+                                                 f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{i}]/img").get_attribute(
+                "src")
+            # 객실 이미지 개수가 5개보다 작은 경우
+            if (roomLen < i):
                 detailImageUrl = driver.find_element(By.XPATH,
-                                                     f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{i}]/img").get_attribute(
+                                                     f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{roomLen}]/img").get_attribute(
                     "src")
-            except Exception as e1:
-                print("e1: ", e1)
-                pass
 
             print("detailImageUrl: ", detailImageUrl)
             imgUrlDict['detailImageUrl'] = detailImageUrl
-
-            # if (detailImageUrl != None):
-            #     detailImageLinks.append(detailImageUrl)
 
             save_detail_data(imgUrlDict)
 
         # 상세 이미지 창 닫기
         driver.find_element(By.XPATH, "/html/body/div[17]/div/div[2]/div/div/div[1]/button/div/div/div").click()
 
-    # print("찾은 메인 이미지 개수 : ", len(mainImgLinks))
-    # print("찾은 상세 이미지 개수 : ", len(detailImageLinks))
-    print("찾은 메인 이미지 개수 : ", len(imgUrlDict['mainImageUrl']))
-    print("찾은 상세 이미지 개수 : ", len(imgUrlDict['detailImageUrl']))
+        # print("찾은 메인 이미지 개수 : ", len(imgUrlDict['mainImageUrl']))
+        # print("찾은 상세 이미지 개수 : ", len(imgUrlDict['detailImageUrl']))
 
 except Exception as e2:
     print("e2: ", e2)
