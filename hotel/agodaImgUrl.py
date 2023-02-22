@@ -84,9 +84,6 @@ try:
                 detailImageUrl = driver.find_element(By.XPATH,
                                                      f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{i}]/img").get_attribute(
                     "src")
-                # 다음 버튼 클릭
-                driver.find_element(By.XPATH,
-                                    "/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div").click()
             except Exception as e1:
                 print("e1: ", e1)
                 pass
