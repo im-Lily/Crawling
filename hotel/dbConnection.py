@@ -23,14 +23,14 @@ def connect_db():
 
 
 # 메인 이미지 url DB 추가
-def save_main_data(imgUrlDict):
+def save_main_data(img_url_info):
     conn, cursor = connect_db()
 
-    print(">", imgUrlDict)
+    print(">", img_url_info)
 
-    query = f"INSERT INTO main_img (MAIN_IMG_URL, MAIN_IMG_ID) VALUES (\'{imgUrlDict['mainImageUrl']}\', \'{imgUrlDict['mainImageId']}\')"
+    query = f"INSERT INTO main_img (MAIN_IMG_URL, MAIN_IMG_ID) VALUES (\'{img_url_info['mainImgUrl']}\', \'{img_url_info['mainImgId']}\')"
 
-    print("query1 : ", query)
+    # print("query1 : ", query)
     cursor.execute(query)
 
     cursor.execute(query)
@@ -39,11 +39,11 @@ def save_main_data(imgUrlDict):
 
 
 # 상세 이미지 url DB 추가
-def save_detail_data(imgUrlDict):
+def save_detail_data(img_url_info):
     conn, cursor = connect_db()
 
-    query = f"INSERT INTO detail_img (DETAIL_IMG_URL, MAIN_IMG_ID) VALUES (\'{imgUrlDict['detailImageUrl']}\', \'{imgUrlDict['mainImageId']}\')"
-    print("query2: ", query)
+    query = f"INSERT INTO detail_img (DETAIL_IMG_URL, MAIN_IMG_ID) VALUES (\'{img_url_info['detailImgUrl']}\', \'{img_url_info['mainImgId']}\')"
+    # print("query2: ", query)
 
     cursor.execute(query)
     conn.commit()

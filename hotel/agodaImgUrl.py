@@ -30,87 +30,93 @@ driver.get(
 # 로딩이 끝날 때까지 5초 기다리기
 driver.implicitly_wait(5)
 
+img_url_info = {}
+
+
+# 메인 이미지 url 가져오는 함수
+def get_main_img_url(driver):
+    # 숙소 외관 이미지 클릭
+    mainImgList = driver.find_elements(By.CSS_SELECTOR, ".HeroImage")
+    time.sleep(3)
+    try:
+        for mainImg in mainImgList:
+            mainImg.click()
+            time.sleep(2)
+            # 메인 이미지 url
+            mainImgUrl = mainImg.get_attribute("src")
+            mainImgId = mainImg.get_attribute("data-element-index")
+
+            print("mainImgUrl: ", mainImgUrl)
+            print("mainImgId: ", mainImgId)
+
+            img_url_info['mainImgUrl'] = mainImgUrl
+            img_url_info['mainImgId'] = int(mainImgId) + 1
+
+            save_main_data(img_url_info)
+
+            # 여기서 get_detail_img_url() 호출할 것
+            # 상세 페이지 탭
+            tabList = driver.find_elements(By.CLASS_NAME,
+                                           "Buttonstyled__ButtonStyled-sc-5gjk6l-0.izeZQM")
+
+            # 객실 수 저장
+            roomLen = int(re.sub(r'[^0-9]', '', tabList[2].text))
+            # 객실 클릭
+            tabList[2].click()
+
+            # 상세(객실) 이미지 - 작은 이미지
+            count = 1
+            detailImgList = driver.find_elements(By.CLASS_NAME, "GalleryRefresh__Thumbnails__Thumbnail")
+            for detailImg in detailImgList:
+                detailImg.click()
+                time.sleep(2)
+                detailImgUrl = detailImg.get_attribute("src")
+                print("detailImgUrl: ", detailImgUrl)
+
+                img_url_info['detailImgUrl'] = detailImgUrl
+
+                # 상세 이미지 개수 5개 가져오기 or 상세 이미지 개수가 5개보다 적은 경우 종
+                count += 1
+                if (count == 6 or count > roomLen):
+                    # 상세 이미지 창 닫기
+                    driver.find_element(By.CLASS_NAME, "Box-sc-kv6pi1-0.dmiRkO").click()
+                    break
+
+                save_detail_data(img_url_info)
+            print()
+
+            time.sleep(10)
+
+    except Exception as e1:
+        print("e1: ", e1)
+        pass
+
+
 # 스크롤 끝까지 내리기
-# SCROLL_PAUSE_TIME = 3
-#
-# last_height = driver.execute_script("return document.body.scrollHeight")
-# while True:
-#     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-#     time.sleep(SCROLL_PAUSE_TIME)
-#     new_height = driver.execute_script("return document.body.scrollHeight")
-#
-#     if new_height == last_height:
-#         try:
-#             driver.find_element(By.CSS_SELECTOR, "#paginationNext").click()
-#             time.sleep(SCROLL_PAUSE_TIME)
-#         except:
-#             break
-#     last_height = new_height
+SCROLL_PAUSE_TIME = 3
 
-# 메인, 상세(객실) 이미지 url 가져오기
-imgUrlDict = {}
-mainImages = driver.find_elements(By.CSS_SELECTOR, ".HeroImage")
-try:
-    for mainImage in mainImages:
-        mainImage.click()
-        time.sleep(2)
-        # 메인 이미지 url
-        mainImageUrl = mainImage.get_attribute("src")
-        mainImageId = mainImage.get_attribute("data-element-index")
-        print("mainImageUrl: ", mainImageUrl)
-        print("mainImageId: ", mainImageId)
-        imgUrlDict['mainImageUrl'] = mainImageUrl
-        imgUrlDict['mainImageId'] = int(mainImageId) + 1
 
-        print(
-            "================================================================================================================")
+def scroll_to_bottom(driver):
+    last_height = driver.execute_script("return document.body.scrollHeight")
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(SCROLL_PAUSE_TIME)
+        new_height = driver.execute_script("return document.body.scrollHeight")
 
-        save_main_data(imgUrlDict)
+        get_main_img_url(driver)
 
-        # 객실 클릭 TODO
-        # 객실 사진수 가져오기
-        elements = driver.find_elements(By.CLASS_NAME,
-                                        "Buttonstyled__ButtonStyled-sc-5gjk6l-0.izeZQM")
-        elements[2]. click()
+        if new_height == last_height:
+            try:
+                driver.find_element(By.CSS_SELECTOR, "#paginationNext").click()
+                time.sleep(SCROLL_PAUSE_TIME)
+            except:
+                break
+        last_height = new_height
 
-        driver.find_element(By.XPATH,
-                            "/html/body/div[17]/div/div[2]/div/div/div[2]/div[2]/div[1]/div/button[2]/div/div/div/div/p").click()
-        # 객실 이미지
-        detailImages = driver.find_elements(By.XPATH,
-                                            "/html/body/div[17]/div/div[2]/div/div/div[2]/div[2]/div[2]/div")
 
-        # 객실 사진수 가져오기
-        # elements = driver.find_elements(By.CLASS_NAME,
-        #                                 "Buttonstyled__ButtonStyled-sc-5gjk6l-0.izeZQM")
-        roomText = elements[2].text
+def main():
+    scroll_to_bottom(driver)
 
-        # 총 객실 사진수
-        roomLen = int(re.sub(r'[^0-9]', '', roomText))
 
-        # 객실 이미지 url 5개 가져오기
-        for i in range(1, 6):
-            driver.find_elements(By.CSS_SELECTOR,
-                                 f".GalleryRefresh__ThumbnailScroller > div > div:nth-child({i})")  # 이게 뭐지
-            detailImageUrl = driver.find_element(By.XPATH,
-                                                 f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{i}]/img").get_attribute(
-                "src")
-            # 객실 이미지 개수가 5개보다 작은 경우
-            if (roomLen < i):
-                detailImageUrl = driver.find_element(By.XPATH,
-                                                     f"/html/body/div[17]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{roomLen}]/img").get_attribute(
-                    "src")
-
-            print("detailImageUrl: ", detailImageUrl)
-            imgUrlDict['detailImageUrl'] = detailImageUrl
-
-            save_detail_data(imgUrlDict)
-
-        # 상세 이미지 창 닫기
-        driver.find_element(By.XPATH, "/html/body/div[17]/div/div[2]/div/div/div[1]/button/div/div/div").click()
-
-        # print("찾은 메인 이미지 개수 : ", len(imgUrlDict['mainImageUrl']))
-        # print("찾은 상세 이미지 개수 : ", len(imgUrlDict['detailImageUrl']))
-
-except Exception as e2:
-    print("e2: ", e2)
-    pass
+if __name__ == "__main__":
+    main()
