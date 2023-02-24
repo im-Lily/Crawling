@@ -20,8 +20,8 @@ driver = webdriver.Chrome(service=service, options=chrome_options)
 
 # 파라미터
 city = 14690  # 서울
-checkIn = "2023-03-01"
-checkOut = "2023-03-08"
+checkIn = "2023-04-03"
+checkOut = "2023-04-07"
 
 # 웹페이지 해당 주소 이동
 driver.get(
@@ -34,14 +34,15 @@ img_url_info = {}
 
 
 # 메인 이미지 url 가져오는 함수
-def get_main_img_url(driver):
-    # 숙소 외관 이미지 클릭
+def get_img_url(driver):
+    # 숙소 외관 이미지
     mainImgList = driver.find_elements(By.CSS_SELECTOR, ".HeroImage")
-    time.sleep(3)
+    time.sleep(5)
     try:
         for mainImg in mainImgList:
             mainImg.click()
-            time.sleep(2)
+            time.sleep(5)
+
             # 메인 이미지 url
             mainImgUrl = mainImg.get_attribute("src")
             mainImgId = mainImg.get_attribute("data-element-index")
@@ -54,7 +55,6 @@ def get_main_img_url(driver):
 
             save_main_data(img_url_info)
 
-            # 여기서 get_detail_img_url() 호출할 것
             # 상세 페이지 탭
             tabList = driver.find_elements(By.CLASS_NAME,
                                            "Buttonstyled__ButtonStyled-sc-5gjk6l-0.izeZQM")
@@ -64,37 +64,34 @@ def get_main_img_url(driver):
             # 객실 클릭
             tabList[2].click()
 
-            # 상세(객실) 이미지 - 작은 이미지
-            count = 1
-            detailImgList = driver.find_elements(By.CLASS_NAME, "GalleryRefresh__Thumbnails__Thumbnail")
-            for detailImg in detailImgList:
-                detailImg.click()
-                time.sleep(2)
-                detailImgUrl = detailImg.get_attribute("src")
-                print("detailImgUrl: ", detailImgUrl)
+            # 상세(객실) 이미지 - 원본 이미지
+            for i in range(17, 30):
+                for j in range(2, 7):
+                    path = "/html/body/div[{}]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{}]/img".format(
+                        i, j)
+                    print("path: ", path)
+                    detailImg = driver.find_element(By.XPATH, path)
+                    detailImgUrl = detailImg.get_attribute("src")
+                    print("url: ", detailImgUrl)
 
-                img_url_info['detailImgUrl'] = detailImgUrl
+                    img_url_info['detailImgUrl'] = detailImgUrl
 
-                # 상세 이미지 개수 5개 가져오기 or 상세 이미지 개수가 5개보다 적은 경우 종
-                count += 1
-                if (count == 6 or count > roomLen):
+                # 상세 이미지 개수 5개 가져오기 or 상세 이미지 개수가 5개보다 적은 경우 종료
+                if (j == 6 or j > roomLen):
                     # 상세 이미지 창 닫기
                     driver.find_element(By.CLASS_NAME, "Box-sc-kv6pi1-0.dmiRkO").click()
                     break
-
                 save_detail_data(img_url_info)
-            print()
 
             time.sleep(10)
 
-    except Exception as e1:
-        print("e1: ", e1)
-        pass
+    except Exception as e:
+        print("e: ", e)
+    pass
 
 
 # 스크롤 끝까지 내리기
-SCROLL_PAUSE_TIME = 3
-
+SCROLL_PAUSE_TIME = 10
 
 def scroll_to_bottom(driver):
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -103,15 +100,22 @@ def scroll_to_bottom(driver):
         time.sleep(SCROLL_PAUSE_TIME)
         new_height = driver.execute_script("return document.body.scrollHeight")
 
-        get_main_img_url(driver)
+        get_img_url(driver)
 
+        # 마지막 스크롤일 때
         if new_height == last_height:
             try:
-                driver.find_element(By.CSS_SELECTOR, "#paginationNext").click()
-                time.sleep(SCROLL_PAUSE_TIME)
+                # 다음 페이지로 이동
+                next_button = driver.find_element(By.CSS_SELECTOR, "#paginationNext")
+                if next_button.is_displayed():
+                    next_button.click()
+                    time.sleep(SCROLL_PAUSE_TIME)
+                else:
+                    break  # 마지막 페이지인 경우 while loop 종료
             except:
-                break
-        last_height = new_height
+                break  # 다음 페이지 버튼이 없는 경우 while loop 종료
+
+            last_height = new_height
 
 
 def main():
