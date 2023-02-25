@@ -36,7 +36,7 @@ img_url_info = {}
 # 메인 이미지 url 가져오는 함수
 def get_img_url(driver):
     # 숙소 외관 이미지
-    mainImgList = driver.find_elements(By.CSS_SELECTOR, ".HeroImage")
+    mainImgList = driver.find_elements(By.CLASS_NAME, "HeroImage.HeroImage--s")
     time.sleep(5)
     try:
         for mainImg in mainImgList:
@@ -63,21 +63,21 @@ def get_img_url(driver):
             roomLen = int(re.sub(r'[^0-9]', '', tabList[2].text))
             # 객실 클릭
             tabList[2].click()
+            time.sleep(2)
 
             # 상세(객실) 이미지 - 원본 이미지
-            for i in range(17, 30):
-                for j in range(2, 7):
-                    path = "/html/body/div[{}]/div/div[2]/div/div/div[2]/div[1]/div[1]/div[1]/div[2]/div[{}]/img".format(
-                        i, j)
-                    print("path: ", path)
-                    detailImg = driver.find_element(By.XPATH, path)
-                    detailImgUrl = detailImg.get_attribute("src")
-                    print("url: ", detailImgUrl)
+            elements = driver.find_elements(By.CLASS_NAME,
+                                            "Box-sc-kv6pi1-0 > img")
+            count = 4
+            while True:
+                detailImgUrl = elements[count].get_attribute("src")
+                print("detailImgUrl: ", detailImgUrl)
+                img_url_info['detailImgUrl'] = detailImgUrl
 
-                    img_url_info['detailImgUrl'] = detailImgUrl
+                count += 1
 
                 # 상세 이미지 개수 5개 가져오기 or 상세 이미지 개수가 5개보다 적은 경우 종료
-                if (j == 6 or j > roomLen):
+                if (count == 9 or count > roomLen):
                     # 상세 이미지 창 닫기
                     driver.find_element(By.CLASS_NAME, "Box-sc-kv6pi1-0.dmiRkO").click()
                     break
