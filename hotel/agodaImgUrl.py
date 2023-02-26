@@ -32,10 +32,12 @@ driver.implicitly_wait(5)
 
 img_url_info = {}
 
+
 # 이미지 url 가져오는 함수
 def get_img_url(driver):
     # 숙소 외관 이미지
     mainImgList = driver.find_elements(By.CLASS_NAME, "HeroImage.HeroImage--s")
+    mainImgId = 0
     time.sleep(5)
     try:
         for mainImg in mainImgList:
@@ -44,10 +46,10 @@ def get_img_url(driver):
 
             # 메인 이미지 url
             mainImgUrl = mainImg.get_attribute("src")
-            mainImgId = mainImg.get_attribute("data-element-index")
+            mainImgId += 1
 
             img_url_info['mainImgUrl'] = mainImgUrl
-            img_url_info['mainImgId'] = int(mainImgId) + 1
+            img_url_info['mainImgId'] = mainImgId
 
             # 메인 이미지 url DB 저장
             save_main_data(img_url_info)
@@ -88,42 +90,83 @@ def get_detail_img_url(driver):
             # 상세 이미지 창 닫기
             driver.find_element(By.CLASS_NAME, "Box-sc-kv6pi1-0.dmiRkO").click()
             break
+
+        # 상세 이미지 url DB 저장
         save_detail_data(img_url_info)
         count += 1
 
 
-# 스크롤 끝까지 내리기
-SCROLL_PAUSE_TIME = 10
-
-last_height = driver.execute_script("return document.body.scrollHeight")
-while True:
-    # 끝까지 스크롤
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-    time.sleep(SCROLL_PAUSE_TIME)
-    # 스크롤 다운 후 스크롤 높이 다시 가져옴
-    new_height = driver.execute_script("return document.body.scrollHeight")
-
-    get_img_url(driver)
-
-    # 마지막 스크롤일 때
-    if new_height == last_height:
-        try:
-            # 다음 페이지로 이동
-            next_button = driver.find_element(By.CSS_SELECTOR, "#paginationNext")
-            if next_button.is_displayed():
-                next_button.click()
-                time.sleep(SCROLL_PAUSE_TIME)
-            else:
-                break  # 마지막 페이지인 경우 while loop 종료
-        except:
-            break  # 다음 페이지 버튼이 없는 경우 while loop 종료
-
-    last_height = new_height
-
+# 스크롤 내리면서 페이지 이동하는 함수
+# def scroll_to_bottom(driver):
+#     SCROLL_PAUSE_TIME = 15
+#     last_height = driver.execute_script("return document.body.scrollHeight")
+#     while True:
+#         # 끝까지 스크롤
+#         driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+#         time.sleep(SCROLL_PAUSE_TIME)
+#         # 스크롤 다운 후 스크롤 높이 다시 가져옴
+#         new_height = driver.execute_script("return document.body.scrollHeight")
 #
-# def main():
-#     get_img_url(driver)
+#         # 스크롤 끝까지 내렸을 때
+#         if new_height == last_height:
+#             # 맨 위로 올라감
+#             driver.execute_script("window.scrollTo(0, 0)")
+#             time.sleep(SCROLL_PAUSE_TIME)
 #
+#             # 이미지 url 가져오는 함수 호출
+#             get_img_url(driver)
 #
-# if __name__ == "__main__":
-#     main()
+#             try:
+#                 # 다음 페이지로 이동
+#                 next_button = driver.find_element(By.CSS_SELECTOR, "#paginationNext")
+#                 if next_button.is_displayed():
+#                     next_button.click()
+#                     time.sleep(SCROLL_PAUSE_TIME)
+#                 else:
+#                     break  # 마지막 페이지인 경우 while loop 종료
+#             except:
+#                 break  # 다음 페이지 버튼이 없는 경우 while loop 종료
+#
+#             # 스크롤 위치 초기화
+#             last_height = 0
+#
+#         else:
+#             last_height = new_height
+
+def scroll_to_bottom(driver):
+    # 스크롤 끝까지 내리기
+    SCROLL_PAUSE_TIME = 20
+
+    before_location = driver.execute_script("return window.pageYOffset")
+
+    while True:
+        # 끝까지 스크롤
+        driver.execute_script("window.scrollTo(0,{})".format(before_location + 3000))
+        time.sleep(2)
+        # 스크롤 다운 후 스크롤 높이 다시 가져옴
+        after_location = driver.execute_script("return window.pageYOffset")
+
+        get_img_url(driver)
+
+        # 마지막 스크롤일 때
+        if before_location == after_location:
+            try:
+                # 다음 페이지로 이동
+                next_button = driver.find_element(By.CSS_SELECTOR, "#paginationNext")
+                if next_button.is_displayed():
+                    next_button.click()
+                    time.sleep(SCROLL_PAUSE_TIME)
+                else:
+                    break  # 마지막 페이지인 경우 while loop 종료
+            except:
+                break  # 다음 페이지 버튼이 없는 경우 while loop 종료
+        else:
+            # 이동여부 판단 기준이 되는 이전 위치 값 수정
+            before_location = driver.execute_script("return window.pageYOffset")
+
+def main():
+    scroll_to_bottom(driver)
+
+
+if __name__ == "__main__":
+    main()

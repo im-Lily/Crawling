@@ -29,7 +29,6 @@ def save_main_data(img_url_info):
     query = f"INSERT INTO main_img (MAIN_IMG_URL, MAIN_IMG_ID) VALUES (\'{img_url_info['mainImgUrl']}\', \'{img_url_info['mainImgId']}\')"
 
     print("query1: ", query)
-    cursor.execute(query)
 
     cursor.execute(query)
     conn.commit()
@@ -42,6 +41,7 @@ def save_detail_data(img_url_info):
     query = f"INSERT INTO detail_img (DETAIL_IMG_URL, MAIN_IMG_ID) VALUES (\'{img_url_info['detailImgUrl']}\', \'{img_url_info['mainImgId']}\')"
 
     print("query2: ", query)
+
     cursor.execute(query)
     conn.commit()
     conn.close()
