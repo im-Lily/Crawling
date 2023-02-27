@@ -25,7 +25,7 @@ checkOut = "2023-04-07"
 
 # 웹페이지 해당 주소 이동
 driver.get(
-    f"https://www.agoda.com/ko-kr/search?city={city}&checkIn={checkIn}&los=7&rooms=1&adults=2&children=0&cid=1891463&locale=ko-kr&ckuid=8f4ef8c2-a7ba-446b-b2f5-3f299164454f&prid=0&gclid=Cj0KCQiArsefBhCbARIsAP98hXRDutveTPNpWIfQLXDpoMElaN4JKjVtcEroqVIe_mgLos7C4swF9hAaAv3HEALw_wcB&currency=KRW&correlationId=60839d4e-ec58-4c59-937b-3f3710949d9c&analyticsSessionId=-7982247166164195812&pageTypeId=1&realLanguageId=9&languageId=9&origin=KR&tag=45b17d1d-e0b0-fe2a-ce90-5513829d856b&userId=8f4ef8c2-a7ba-446b-b2f5-3f299164454f&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=26&currencyCode=KRW&htmlLanguage=ko-kr&cultureInfoName=ko-kr&machineName=hk-pc-2g-acm-web-user-cfc54bf5c-pw9vs&trafficGroupId=5&sessionId=15r2ueyomnlsg0dnubz31jmi&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&checkOut={checkOut}&priceCur=KRW&textToSearch=%EC%84%9C%EC%9A%B8&productType=-1&travellerType=1&familyMode=off")
+    f"https://www.agoda.com/ko-kr/search?city={city}&checkIn={checkIn}&los=7&rooms=1&adults=2&children=0&cid=1891463&locale=ko-kr&ckuid=8f4ef8c2-a7ba-446b-b2f5-3f299164454f&prid=0&gclid=Cj0KCQiAo-yfBhD_ARIsANr56g4pwcsS19tYA-Q-W-BkS6FRQeDI_evgrc29NpSYRF9_uIF60NZXHI4aAi2oEALw_wcB&currency=KRW&correlationId=4397fe57-a697-4c3a-b922-f0d231cc77d6&analyticsSessionId=1862650282257724021&pageTypeId=1&realLanguageId=9&languageId=9&origin=KR&tag=45b17d1d-e0b0-fe2a-ce90-5513829d856b&userId=8f4ef8c2-a7ba-446b-b2f5-3f299164454f&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=26&currencyCode=KRW&htmlLanguage=ko-kr&cultureInfoName=ko-kr&machineName=sg-pc-6g-acm-web-user-848947997-z64n8&trafficGroupId=5&sessionId=ogfkq2xyxreye2g4q04mgvxs&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&checkOut={checkOut}&priceCur=KRW&textToSearch=%EC%84%9C%EC%9A%B8&travellerType=1&familyMode=off&productType=-1")
 
 # 로딩이 끝날 때까지 5초 기다리기
 driver.implicitly_wait(5)
@@ -89,7 +89,7 @@ def get_detail_img_url(driver):
         print(">>", "객실" + "(" + str(roomLen) + ")")
 
         # 객실 이미지만 가져오기
-        if(tabList[2].text == "객실" + "(" + str(roomLen) + ")"):
+        if (tabList[2].text == "객실" + "(" + str(roomLen) + ")"):
 
             # 상세(객실) 이미지 - 원본 이미지
             elements = driver.find_elements(By.CLASS_NAME,
@@ -115,6 +115,7 @@ def get_detail_img_url(driver):
         driver.find_element(By.CLASS_NAME, "Box-sc-kv6pi1-0.dmiRkO").click()
         pass
 
+
 def scroll_to_bottom(driver):
     # 스크롤 끝까지 내리기
 
@@ -133,19 +134,10 @@ def scroll_to_bottom(driver):
             next_button = driver.find_element(By.CSS_SELECTOR, "#paginationNext")
             get_img_url(driver, next_button)
 
-        # try:
-        #     # 다음 페이지로 이동
-
-        #     if next_button.is_displayed():
-        #         next_button.click()
-        #         time.sleep(SCROLL_PAUSE_TIME)
-        #     else:
-        #         break  # 마지막 페이지인 경우 while loop 종료
-        # except:
-        #     break  # 다음 페이지 버튼이 없는 경우 while loop 종료
         else:
             # 이동여부 판단 기준이 되는 이전 위치 값 수정
             before_location = driver.execute_script("return window.pageYOffset")
+
 
 def main():
     scroll_to_bottom(driver)
