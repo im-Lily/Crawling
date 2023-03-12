@@ -7,6 +7,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
+from dbInsert import insert_review_data
+
 # 브라우저 꺼짐 방지
 chrome_options = Options()
 chrome_options.add_experimental_option("detach", True)
@@ -22,7 +24,8 @@ checkIn = "2023-04-03"
 checkOut = "2023-04-07"
 
 # 웹페이지 해당 주소 이동
-driver.get("https://www.goodchoice.kr/product/search/2")
+# driver.get("https://www.goodchoice.kr/product/search/2")
+driver.get("https://www.goodchoice.kr/product/search/2/2014")
 
 # 로딩이 끝날 때까지 5초 기다리기
 driver.implicitly_wait(5)
@@ -41,7 +44,7 @@ name_list = []
 content_list = []
 imgUrl_list = []
 
-
+review_data = {}
 # 전체 리뷰
 def get_review():
     for i in range(1, 16):
@@ -64,6 +67,13 @@ def get_review():
             imgUrl = ""
             pass
 
+        review_data['title'] = title
+        review_data['rating'] = rating
+        review_data['content'] = content
+        review_data['imgUrl'] = imgUrl
+
+        # insert_review_data(review_data)
+
         title_list.append(title)
         rating_list.append(rating)
         name_list.append(name)
@@ -76,9 +86,11 @@ def get_review():
     df = pd.DataFrame(data)
     df.to_csv('호텔 리뷰 데이터.csv', encoding='utf-8')
 
+    driver.close()
+
 
 def main():
-    get_review()(driver)
+    get_review()
 
 
 if __name__ == "__main__":
